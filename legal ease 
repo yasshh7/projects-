@@ -1,0 +1,569 @@
+<DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LegalEase Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f4f8; /* Lighter background */
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background-color: #ffffff;
+            margin: 10% auto;
+            padding: 32px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close-button:hover, .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .chat-container {
+            height: 400px;
+            overflow-y: auto;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #f8f9fa;
+            margin-bottom: 1rem;
+            border: 1px solid #e0e0e0;
+        }
+        .message {
+            margin-bottom: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 1.25rem;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background-color: #dbeafe; /* Light blue */
+            margin-left: auto;
+            text-align: right;
+        }
+        .ai-message {
+            background-color: #e2e8f0;
+            margin-right: auto;
+            text-align: left;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside class="bg-gray-900 text-gray-300 w-64 flex flex-col p-4 shadow-lg">
+        <div class="flex items-center justify-center p-4">
+            <h1 class="text-white text-2xl font-extrabold">LegalEase</h1>
+        </div>
+        <nav class="mt-8 flex-grow">
+            <ul>
+                <li class="mb-2">
+                    <a href="#" class="flex items-center p-3 rounded-xl bg-gray-800 text-white font-medium">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="#" id="upload-doc-btn" class="flex items-center p-3 rounded-xl hover:bg-gray-800 transition-colors duration-200 cursor-pointer">
+             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-4-4v0a4 4 0 014-4h8a4 4 0 014 4v0a4 4 0 01-4 4H7z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 16l-3-3L10 16"></path></svg>
+                        Upload Document
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="#" class="flex items-center p-3 rounded-xl hover:bg-gray-800 transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        My Documents
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="#" class="flex items-center p-3 rounded-xl hover:bg-gray-800 transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13a6.7 6.7 0 00-6.417 6.702A6.7 6.7 0 0012 19.252m0-13a6.7 6.7 0 016.417 6.702A6.7 6.7 0 0112 19.252m-6.796 06.796A9 9 0 102.253 12 9 9 0 0012 2.253"></path></svg>
+                        Saved Answers
+                    </a>
+                </li>
+                <li class="mb-2">
+                    <a href="#" class="flex items-center p-3 rounded-xl hover:bg-gray-800 transition-colors duration-200">
+                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.747 2.081-1.747 2.507 0a1.5 1.5 0 001.218 1.218c1.747.426 1.747 2.081 0 2.507a1.5 1.5 0 00-1.218 1.218c-.426 1.747-2.081 1.747-2.507 0a1.5 1.5 0 00-1.218-1.218c-1.747-.426-1.747-2.081 0-2.507a1.5 1.5 0 001.218-1.218zM12 15a3 3 0 100-6 3 3 0 000 6z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9 9 0 100-18 9 9 0 000 18z"></path></svg>
+                        Settings
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-grow p-8">
+        <!-- Header -->
+        <header class="flex items-center justify-between p-6 bg-white rounded-xl shadow-md mb-8">
+            <div class="text-xl font-medium text-gray-800">
+                Good morning, **Ria**!
+            </div>
+            <div class="flex items-center">
+                <input type="text" placeholder="Search documents..." class="px-5 py-2 mr-4 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center text-gray-700 font-bold">R</div>
+            </div>
+        </header>
+
+        <!-- Hero Section -->
+        <section class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl p-8 lg:p-12 mb-8 shadow-xl text-white">
+            <div class="flex flex-col lg:flex-row items-center justify-between">
+                <div class="lg:w-3/4">
+                    <h2 class="text-4xl lg:text-5xl font-extrabold mb-4 font-['Playfair_Display']">Your AI Legal Assistant</h2>
+                    <p class="text-lg lg:text-xl opacity-90">Effortlessly understand legal documents. Upload, get smart summaries, and detect risky clauses in seconds.</p>
+                </div>
+                <div class="mt-8 lg:mt-0 lg:ml-8">
+                    <button id="upload-doc-hero-btn" class="px-8 py-4 bg-white text-blue-600 font-bold rounded-full hover:bg-gray-100 transition-colors duration-300 transform hover:scale-105 shadow-lg">Upload Now</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quick Actions -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center hover:shadow-xl transition-shadow duration-300 cursor-pointer border border-gray-200" id="upload-doc-quick-action">
+                    <svg class="w-12 h-12 text-blue-500 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                    <span class="font-medium text-gray-700">Upload New Document</span>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center hover:shadow-xl transition-shadow duration-300 cursor-pointer border border-gray-200" id="ask-question-btn">
+                    <svg class="w-12 h-12 text-green-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" 
+stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="font-medium text-gray-700">Ask a Question</span>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center hover:shadow-xl transition-shadow duration-300 cursor-pointer border border-gray-200">
+                    <svg class="w-12 h-12 text-yellow-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v2a2 2 0 01-2 2H5a2 2 0 01-2-2v-2a2 2 0 012-2m14 0V9a2 2 0 00-2-2H7a2 2 0 00-2 2v2m7 5h2"></path></svg>
+                    <span class="font-medium text-gray-700">View My Documents</span>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg flex flex-col items-center hover:shadow-xl transition-shadow duration-300 cursor-pointer border border-gray-200" id="risk-detector-btn">
+                    <svg class="w-12 h-12 text-red-600 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="font-medium text-gray-700">Risk Detector</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Features -->
+        <section class="mb-8">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Core Features</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer border border-gray-200" id="summary-feature-btn">
+                    <h3 class="font-bold text-gray-800 text-lg mb-2">Smart Summarization</h3>
+                    <p class="text-gray-600 text-sm">Get a quick, high-level overview of any legal document in simple, easy-to-understand language.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200">
+                    <h3 class="font-bold text-gray-800 text-lg mb-2">Clause-by-Clause Explanation</h3>
+                    <p class="text-gray-600 text-sm">Dive deep into each section of a document with detailed explanations and definitions.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200">
+                    <h3 class="font-bold text-gray-800 text-lg mb-2">Risk & Red Flag Detection</h3>
+                    <p class="text-gray-600 text-sm">Our AI automatically highlights potentially risky or unfavorable clauses for your attention.</p>
+                </div>
+                <div class="bg-white p-6 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-200">
+                    <h3 class="font-bold text-gray-800 text-lg mb-2">Interactive Q&A Chatbot</h3>
+                    <p class="text-gray-600 text-sm">Ask questions and get personalized, context-aware 
+answers about your documents or general legal topics.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Document Processing Results -->
+        <section class="mb-8" id="results-section" style="display:none;">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4">Document Analysis Results</h2>
+            <div id="results-container" class="bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+                <div id="loading-spinner" class="text-center text-gray-500 py-4" style="display:none;">
+                    <div class="spinner-border animate-spin inline-block w-8 h-8 border-4 rounded-full" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Analyzing document...</p>
+                </div>
+                <div id="summary-output" class="p-6 border-b border-gray-200"></div>
+                <div id="risk-output" class="mt-6 p-6"></div>
+            </div>
+        </section>
+
+        <!-- Recent Activity & Upcoming Events -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Recent Activity</h2>
+                    <ul class="space-y-4">
+                        <li class="p-4 rounded-lg bg-gray-50 flex items-center justify-between border border-gray-200">
+                            <div class="flex items-center">
+                                <svg class="w-6 h-6 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m-5 4H5a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2z"></path></svg>
+                                <div>
+                                    <h4 class="font-medium text-gray-800">Employment Contract.pdf</h4>
+                                    <p class="text-sm text-gray-500">Uploaded 2 hours ago</p>
+                                </div>
+                            </div>
+                            <span class="text-sm text-green-600 font-medium">Processed</span>
+                        </li>
+                        <li class="p-4 rounded-lg bg-gray-50 flex items-center justify-between border border-gray-200">
+                            <div class="flex items-center">
+                                <svg class="w-6 h-6 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+
+      <div>
+                                    <h4 class="font-medium text-gray-800">Question about "Force Majeure"</h4>
+                                    <p class="text-sm text-gray-500">Asked 3 hours ago</p>
+                                </div>
+                            </div>
+                            <span class="text-sm text-blue-600 font-medium">Answered</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="lg:col-span-1">
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Upcoming Events</h2>
+                    <ul class="space-y-4">
+                        <li class="p-4 rounded-lg bg-gray-50 border-l-4 border-blue-600">
+                            <h4 class="font-medium text-gray-800">Contract Renewal</h4>
+                            <p class="text-sm text-gray-500">Due on Oct 15, 2025</p>
+                        </li>
+                        <li class="p-4 rounded-lg bg-gray-50 border-l-4 border-green-600">
+                            <h4 class="font-medium text-gray-800">Meeting with Legal Consultant</h4>
+                            <p class="text-sm text-gray-500">Oct 20, 2025 at 10:00 AM</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Upload Modal -->
+    <div id="upload-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="text-2xl font-bold mb-2 font-['Playfair_Display']">Secure Document Upload</h2>
+            <p class="text-gray-600 mb-6 text-sm">Please upload your legal documents securely.</p>
+
+            <div class="mb-6">
+                <label for="file-upload" class="cursor-pointer">
+                    <div class="bg-gray-50 border-2 border-dashed border-gray-300 rounded-xl p-8 transition-colors hover:bg-gray-100">
+                        <div class="flex flex-col items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-12 h-12 text-blue-600 mb-2">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.25a.75.75 0 00-.75-.75H14.25m-2.5 0v2.25a.75.75 0 01-.75.75H8.25m0-4.5h-.75a.75.75 0 00-.75.75V15m.75 0h.75a.75.75 0 01.75.75v3.75m-4.5-4.5a.75.75 0 00-.75.75v4.5A.75.75 0 006 18.75h12a.75.75 0 00.75-.75v-4.5a.75.75 0 00-.75-.75H13.5m-3 0V9m0-4.5h-.75a.75.75 0 00-.75.75v12a.75.75 0 00.75.75h.75m0-13.5v-2.25a.75.75 0 01.75-.75h.75m0-4.5a.75.75 0 00.75.75h4.5a.75.75 0 00.75-.75V3" />
+                            </svg>
+                            <p class="text-sm font-semibold text-gray-600">
+                                <span class="text-blue-600">Click to browse</span> or drag and drop your file
+                            </p>
+                            <p class="text-xs text-gray-400 mt-1">Accepted formats: PDF, DOCX, XLSX, TXT (max 5MB)</p>
+                        </div>
+                    </div>
+                    <input id="file-upload" type="file" class="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.txt" />
+                </label>
+            </div>
+
+            <!-- File Information Display -->
+            <div id="file-info-container" class="mt-4 hidden">
+                <div class="bg-gray-100 border border-gray-200 rounded-lg p-4 text-left">
+                    <div class="flex items-center space-x-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6 text-blue-600">
+                            <path fill-rule="evenodd" d="M19.5 21a3 3 0 003-3V6a3 3 0 00-3-3H4.5a3 3 0 00-3 3v12a3 3 0 003 3h15zm-1.5-3a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H6a1.5 1.5 0 00-1.5 1.5v12A1.5 1.5 0 006 19.5h12a1.5 1.5 0 001.5-1.5z" clip-rule="evenodd" />
+                        </svg>
+                        <div>
+                            <p id="file-name" class="text-sm font-semibold text-gray-800"></p>
+                            <p id="file-size" class="text-xs text-gray-500"></p>
+                        </div>
+                    </div>
+                    <p id="upload-status" class="mt-3 text-sm font-medium text-green-600"></p>
+                </div>
+            </div>
+
+            <!-- Error Message -->
+            <div id="error-message" class="mt-4 hidden p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg" role="alert">
+                <p id="error-text" class="text-sm font-medium"></p>
+            </div>
+
+            <button id="process-doc-btn" class="mt-6 w-full px-6 py-3 bg-blue-600 text-white font-bold rounded-full hover:bg-blue-700 transition-colors duration-300">
+                Process Document
+            </button>
+        </div>
+    </div>
+
+    <!-- Chat Modal -->
+    <div id="chat-modal" class="modal">
+   class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h2 class="text-2xl font-bold mb-4 font-['Playfair_Display']">LegalEase Assistant</h2>
+            <div id="chat-box" class="chat-container"></div>
+            <div class="flex mt-4">
+                <input type="text" id="chat-input" class="flex-grow px-5 py-3 rounded-l-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ask a question...">
+                <button id="send-chat-btn" class="px-6 py-3 bg-green-600 text-white font-bold rounded-r-full hover:bg-green-700 transition-colors duration-300">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const apiKey = "";
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+        const uploadModal = document.getElementById('upload-modal');
+        const chatModal = document.getElementById('chat-modal');
+        const uploadDocBtn = document.getElementById('upload-doc-btn');
+        const uploadDocQuickAction = document.getElementById('upload-doc-quick-action');
+        const askQuestionBtn = document.getElementById('ask-question-btn');
+        const uploadDocHeroBtn = document.getElementById('upload-doc-hero-btn');
+        const closeButtons = document.querySelectorAll('.close-button');
+        const processDocBtn = document.getElementById('process-doc-btn');
+        const fileInput = document.getElementById('file-upload');
+        const fileInfoContainer = document.getElementById('file-info-container');
+        const fileNameDisplay = document.getElementById('file-name');
+        const fileSizeDisplay = document.getElementById('file-size');
+        const uploadStatusDisplay = document.getElementById('upload-status');
+        const errorMessageDiv = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+
+        const resultsSection = document.getElementById('results-section');
+        const summaryOutput = document.getElementById('summary-output');
+        const riskOutput = document.getElementById('risk-output');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const chatBox = document.getElementById('chat-box');
+        const chatInput = document.getElementById('chat-input');
+        const sendChatBtn = document.getElementById('send-chat-btn');
+
+        let chatHistory = [];
+        let documentContext = "";
+
+        const sampleDocumentText = `
+        LEASE AGREEMENT
+        This Lease Agreement ("Agreement") is made and entered into as of October 26, 2023, by and between Landlord, a California limited liability company ("Landlord"), and Tenant, a Delaware corporation ("Tenant").
+
+        1. PREMISES. Landlord hereby leases to Tenant and Tenant hereby leases from Landlord that certain real property located at 123 Main Street, Anytown, CA 90210, together with all improvements, appurtenances, and fixtures thereon (the "Premises").
+
+        2. TERM. The term of this Lease shall be for a period of five (5) years, commencing on November 1, 2023 ("Commencement Date") and expiring on October 31, 2028 ("Expiration Date").
+
+        3. RENT. Tenant shall pay Landlord rent in the amount of five thousand dollars ($5,000.00) per month, payable in advance on the first day of each month.
+
+        4. MAINTENANCE AND REPAIRS. Tenant shall, at its sole cost and expense, keep and maintain the Premises in good order and repair, including but not limited to, the plumbing, heating, and electrical systems. Landlord shall not be responsible for any repairs.
+
+        5. DEFAULT. In the event Tenant fails to pay rent when due or breaches any other provision of this Agreement, Landlord may, at its option, terminate this Agreement and repossess the Premises, without further notice to Tenant.
+
+        6. INDEMNIFICATION. Tenant shall indemnify, defend, and hold harmless Landlord from and against any and all claims, damages, liabilities, and expenses arising out of or in connection with Tenant's use or occupancy of the Premises, regardless of the cause.
+
+        7. FORCE MAJEURE. Neither party shall be liable for any failure to perform its obligations hereunder where such failure results from any cause beyond the reasonable control of such party, including but not limited to, acts of God, war, terrorism, or natural disasters.
+        `;
+        
+        // Helper function to format file size
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        async function callGeminiApi(prompt, systemInstruction = null) {
+            const payload = {
+                contents: [{ parts: [{ text: prompt }] }],
+                tools: [{ "google_search": {} }],
+                systemInstruction: systemInstruction ? { parts: [{ text: systemInstruction }] } : undefined,
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                console.error('API call failed:', response.status, response.statusText);
+                return null;
+            }
+
+            const result = await response.json();
+            return result.candidates?.[0]?.content?.parts?.[0]?.text || 'No response from AI.';
+        }
+
+        async function processDocument() {
+            uploadModal.style.display = 'none';
+            resultsSection.style.display = 'block';
+            loadingSpinner.style.display = 'block';
+            summaryOutput.innerHTML = '';
+            riskOutput.innerHTML = '';
+            
+            // For this self-contained app, we will use a static document for analysis
+            // as real-time PDF/DOCX processing requires a server-side component.
+            documentContext = sampleDocumentText;
+
+            try {
+                const summaryPrompt = `Provide a concise, single-paragraph summary of the following legal document and a bulleted list of its key provisions in plain English.
+                \nDocument:\n${documentContext}`;
+                const summary = await callGeminiApi(summaryPrompt, "Act as a world-class financial analyst and legal aid, explaining complex legal documents in simple terms.");
+                summaryOutput.innerHTML = `<h3 class="text-xl font-bold text-gray-800 mb-2">Smart Summarization</h3><div class="text-gray-700 leading-relaxed">${summary.replace(/\n/g, '<br>')}</div>`;
+
+                const riskPrompt = `Analyze the following legal document and identify any potentially risky or unfavorable clauses for the 'Tenant'. Explain why each identified clause is a risk.
+                \nDocument:\n${documentContext}`;
+                const risk = await callGeminiApi(riskPrompt, "You are a legal risk analyst. Provide clear, direct warnings about potential legal risks.");
+                riskOutput.innerHTML = `<h3 class="text-xl font-bold text-gray-800 mb-2">Risk & Red Flag Detection</h3><div class="text-gray-700 leading-relaxed">${risk.replace(/\n/g, '<br>')}</div>`;
+
+            } catch (error) {
+console.error('Error processing document:', error);
+                summaryOutput.innerHTML = `<p class="text-red-500">Error processing document. Please try again.</p>`;
+                riskOutput.innerHTML = '';
+            } finally {
+                loadingSpinner.style.display = 'none';
+            }
+        }
+
+        function addMessageToChat(text, sender) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'ai-message');
+            messageDiv.textContent = text;
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function sendChatMessage() {
+            const userMessage = chatInput.value.trim();
+            if (!userMessage) return;
+
+            addMessageToChat(userMessage, 'user');
+            chatInput.value = '';
+
+            const loadingMessage = document.createElement('div');
+            loadingMessage.textContent = 'LegalEase is typing...';
+            loadingMessage.id = 'loading-message';
+            loadingMessage.classList.add('ai-message', 'italic');
+            chatBox.appendChild(loadingMessage);
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            const fullPrompt = `You are a helpful LegalEase AI Assistant. Answer questions based on the provided legal document. If a question is not directly related to the document, provide a general legal explanation. Do not make up information. Keep answers concise.
+            \nDocument Context:\n${documentContext}\n\nUser Question:\n${userMessage}`;
+
+try {
+                const aiResponse = await callGeminiApi(fullPrompt);
+                const encodedResponse = new DOMParser().parseFromString(aiResponse, 'text/html').body.textContent;
+                chatBox.removeChild(loadingMessage);
+                addMessageToChat(encodedResponse, 'ai');
+            } catch (error) {
+                console.error('Error in chatbot:', error);
+                chatBox.removeChild(loadingMessage);
+                addMessageToChat('Sorry, there was an error processing your request.', 'ai');
+            }
+        }
+
+        // Handles file selection and validation
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                // Clear any previous error messages
+                errorMessageDiv.classList.add('hidden');
+                fileInfoContainer.classList.add('hidden');
+
+                const maxFileSize = 5 * 1024 * 1024; // 5MB
+                const allowedTypes = [
+                    'application/pdf',
+                    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+                    'application/msword', // .doc
+                    'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+                    'application/vnd.ms-excel', // .xls
+                    'text/plain' // .txt
+                ];
+
+                // Validate file size and type
+                if (file.size > maxFileSize) {
+                    errorText.textContent = 'File size exceeds 5MB limit.';
+                    errorMessageDiv.classList.remove('hidden');
+                    return;
+                }
+
+                if (!allowedTypes.includes(file.type)) {
+                    errorText.textContent = 'Invalid file type. Please upload a PDF, DOCX, XLSX, or TXT file.';
+                    errorMessageDiv.classList.remove('hidden');
+                    return;
+                }
+
+                // Update the UI with file information
+                fileNameDisplay.textContent = file.name;
+                fileSizeDisplay.textContent = formatBytes(file.size);
+                uploadStatusDisplay.textContent = 'File selected successfully!';
+
+                fileInfoContainer.classList.remove('hidden');
+
+                // The "Process Document" button will now use the sample text for analysis
+                // as actual file parsing requires a backend.
+                console.log('File is valid and ready for a backend upload:', file);
+            }
+        });
+
+        uploadDocBtn.addEventListener('click', () => {
+            uploadModal.style.display = 'block';
+            fileInfoContainer.classList.add('hidden');
+            errorMessageDiv.classList.add('hidden');
+            fileInput.value = null; // Clear any previous selection
+        });
+        uploadDocQuickAction.addEventListener('click', () => {
+            uploadModal.style.display = 'block';
+            fileInfoContainer.classList.add('hidden');
+            errorMessageDiv.classList.add('hidden');
+            fileInput.value = null;
+        });
+        uploadDocHeroBtn.addEventListener('click', () => {
+            uploadModal.style.display = 'block';
+            fileInfoContainer.classList.add('hidden');
+            errorMessageDiv.classList.add('hidden');
+            fileInput.value = null;
+        });
+        askQuestionBtn.addEventListener('click', () => {
+            chatModal.style.display = 'block';
+            documentContext = sampleDocumentText;
+            chatHistory = [];
+            chatBox.innerHTML = '';
+            addMessageToChat('Hello! Ask me any questions about the sample legal document.', 'ai');
+        });
+
+        closeButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                btn.closest('.modal').style.display = 'none';
+            });
+        });
+
+        processDocBtn.addEventListener('click', processDocument);
+
+        sendChatBtn.addEventListener('click', sendChatMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+
+        document.getElementById('summary-feature-btn').addEventListener('click', () => {
+            processDocument();
+        });
+
+        document.getElementById('risk-detector-btn').addEventListener('click', () => {
+            processDocument();
+        });
+
+    </script>
+</body>
+</html>
+
+
